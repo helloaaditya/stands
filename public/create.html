@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Create Puzzle</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .admin-header {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 8px 32px rgba(102, 126, 234, 0.2);
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .admin-header h1 {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 32px;
+            font-weight: 900;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #f8f9ff;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 24px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+            border-radius: 20px;
+            padding: 28px;
+            box-shadow: 0 8px 32px rgba(102, 126, 234, 0.2);
+        }
+
+        .panel h2 {
+            color: #1e293b;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        /* Email Viewer Styles */
+        .email-viewer {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+            border-radius: 20px;
+            padding: 28px;
+            box-shadow: 0 8px 32px rgba(102, 126, 234, 0.2);
+            max-width: 1400px;
+            margin: 0 auto 24px auto;
+        }
+
+        .email-viewer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .email-viewer-header h2 {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 28px;
+            font-weight: 900;
+            margin: 0;
+        }
+
+        .email-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            color: white;
+        }
+
+        .stat-number {
+            font-size: 48px;
+            font-weight: 900;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .email-table-container {
+            overflow-x: auto;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .email-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        .email-table thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .email-table th {
+            padding: 16px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .email-table td {
+            padding: 16px;
+            border-bottom: 1px solid #e2e8f0;
+            color: #334155;
+        }
+
+        .email-table tbody tr:hover {
+            background: #f8f9ff;
+        }
+
+        .email-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .time-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #10b981;
+            color: white;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .hint-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            background: #f59e0b;
+            color: white;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #334155;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            background: #ffffff;
+            color: #1e293b;
+        }
+
+        input[type="text"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+
+        .grid-builder {
+            margin: 20px 0;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 6px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .grid-cell {
+            aspect-ratio: 1;
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 900;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+        }
+
+        .grid-cell:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .grid-cell.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+
+        .word-input-section {
+            margin: 20px 0;
+        }
+
+        .word-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+            min-height: 40px;
+            padding: 12px;
+            background: #f8f9ff;
+            border-radius: 12px;
+            border: 2px dashed #e2e8f0;
+        }
+
+        .word-tag {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .word-tag .remove {
+            cursor: pointer;
+            font-weight: bold;
+            opacity: 0.8;
+        }
+
+        .word-tag .remove:hover {
+            opacity: 1;
+        }
+
+        .puzzle-list {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .puzzle-item {
+            background: white;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s ease;
+        }
+
+        .puzzle-item:hover {
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.15);
+        }
+
+        .puzzle-item h3 {
+            color: #667eea;
+            margin-bottom: 8px;
+            font-size: 18px;
+        }
+
+        .puzzle-item .info {
+            color: #64748b;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .puzzle-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .puzzle-actions button {
+            padding: 8px 16px;
+            font-size: 13px;
+        }
+
+        .stats {
+            background: #f8f9ff;
+            padding: 12px;
+            border-radius: 12px;
+            margin: 12px 0;
+            text-align: center;
+        }
+
+        .stats-item {
+            display: inline-block;
+            margin: 0 12px;
+        }
+
+        .stats-label {
+            color: #64748b;
+            font-size: 12px;
+        }
+
+        .stats-value {
+            color: #1e293b;
+            font-size: 20px;
+            font-weight: 900;
+        }
+
+        .success-message, .error-message {
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin: 12px 0;
+            display: none;
+            font-weight: 600;
+        }
+
+        .success-message {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .error-message {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .admin-header {
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .grid-container {
+                gap: 4px;
+            }
+
+            .grid-cell {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-header">
+        <h1>🎯 Admin Panel</h1>
+        <div class="header-actions">
+            <button onclick="toggleEmailViewer()" class="btn btn-secondary">📧 View Emails</button>
+            <button onclick="exportEmails()" class="btn btn-secondary">📥 Export CSV</button>
+            <a href="/" class="btn btn-secondary">← Back to Game</a>
+            <button onclick="logout()" class="btn btn-danger" style="background: linear-gradient(135deg, #f44336, #d32f2f); color: white;">Logout</button>
+        </div>
+    </div>
+
+    <!-- Email Viewer Section -->
+    <div id="emailViewer" class="email-viewer" style="display: none;">
+        <div class="email-viewer-header">
+            <h2>📧 Collected Email Addresses</h2>
+            <button onclick="toggleEmailViewer()" class="btn btn-secondary">Close</button>
+        </div>
+        <div class="email-stats">
+            <div class="stat-card">
+                <div class="stat-number" id="totalEmails">0</div>
+                <div class="stat-label">Total Emails</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="uniqueEmails">0</div>
+                <div class="stat-label">Unique Users</div>
+            </div>
+        </div>
+        <div class="email-table-container">
+            <table class="email-table">
+                <thead>
+                    <tr>
+                        <th>Email</th>
+                        <th>Username</th>
+                        <th>Puzzle</th>
+                        <th>Time</th>
+                        <th>Hints</th>
+                        <th>Completed</th>
+                    </tr>
+                </thead>
+                <tbody id="emailTableBody">
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 40px;">
+                            Loading emails...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="left-panel">
+            <div class="panel">
+                <h2>Create New Puzzle</h2>
+                
+                <div id="successMessage" class="success-message"></div>
+                <div id="errorMessage" class="error-message"></div>
+
+                <form id="createForm">
+                    <div class="form-group">
+                        <label for="category">Category</label>
+                        <input type="text" id="category" placeholder="e.g., Nature, Food, Geography" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="theme">Theme</label>
+                        <input type="text" id="theme" placeholder="e.g., Wild Animals, Tropical Fruits, European Countries" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="spangram">Spangram (required) ⭐</label>
+                        <input type="text" id="spangram" placeholder="Word that spans opposite edges of the grid" required>
+                        <small style="color: #64748b; font-size: 12px; margin-top: 4px; display: block;">Must touch two opposite sides (top/bottom or left/right)</small>
+                    </div>
+
+                    <div class="word-input-section">
+                        <label>Non-Theme Words (optional)</label>
+                        <small style="color: #64748b; font-size: 12px; margin-bottom: 8px; display: block;">Words not related to the theme - used for hints</small>
+                        <div style="display: flex; gap: 8px;">
+                            <input type="text" id="nonThemeWordInput" placeholder="Enter a non-theme word and press Enter" style="flex: 1;">
+                            <button type="button" onclick="addNonThemeWord()" class="btn btn-primary">Add</button>
+                        </div>
+                        <div id="nonThemeWordTags" class="word-tags"></div>
+                    </div>
+
+                    <div class="word-input-section">
+                        <label>Words (4+ letters each)</label>
+                        <div style="display: flex; gap: 8px;">
+                            <input type="text" id="wordInput" placeholder="Enter a word and press Enter" style="flex: 1;">
+                            <button type="button" onclick="addWord()" class="btn btn-primary">Add</button>
+                        </div>
+                        <div id="wordTags" class="word-tags"></div>
+                    </div>
+
+                    <div class="grid-builder">
+                        <label>Letter Grid (8 rows × 6 columns)</label>
+                        <div class="stats">
+                            <div class="stats-item">
+                                <div class="stats-label">Letters</div>
+                                <div class="stats-value" id="letterCount">0/48</div>
+                            </div>
+                            <div class="stats-item">
+                                <div class="stats-label">Words</div>
+                                <div class="stats-value" id="wordCount">0</div>
+                            </div>
+                        </div>
+                        <div id="gridContainer" class="grid-container"></div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 24px;">
+                        Create Puzzle
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <div class="panel">
+                <h2>Existing Puzzles</h2>
+                <div id="puzzleList" class="puzzle-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="create.js"></script>
+</body>
+</html>

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Download InMotion Deployment Package</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 24px;
+            padding: 48px;
+            max-width: 600px;
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+        
+        h1 {
+            color: #667eea;
+            font-size: 32px;
+            margin-bottom: 16px;
+        }
+        
+        p {
+            color: #666;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 32px;
+        }
+        
+        .download-btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 16px 48px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+        }
+        
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(102, 126, 234, 0.4);
+        }
+        
+        .info {
+            margin-top: 32px;
+            padding: 24px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            text-align: left;
+        }
+        
+        .info h2 {
+            color: #333;
+            font-size: 20px;
+            margin-bottom: 12px;
+        }
+        
+        .info ul {
+            list-style: none;
+            color: #666;
+        }
+        
+        .info li {
+            padding: 8px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .info li:last-child {
+            border-bottom: none;
+        }
+        
+        .icon {
+            font-size: 64px;
+            margin-bottom: 24px;
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin-top: 24px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">📦</div>
+        <h1>InMotion Deployment Package</h1>
+        <p>Download the complete package configured for InMotion shared hosting with cPanel</p>
+        
+        <a href="inmotion-deployment-fixed.tar.gz" download class="download-btn">
+            📥 Download Package (350 KB)
+        </a>
+        
+        <div class="info">
+            <h2>📋 What's Included:</h2>
+            <ul>
+                <li>✅ server.js - Configured for Passenger</li>
+                <li>✅ auth.js - Authentication module</li>
+                <li>✅ package.json - All dependencies</li>
+                <li>✅ .env.example - Configuration template</li>
+                <li>✅ public/ - All frontend files</li>
+                <li>✅ INMOTION_SETUP_GUIDE.md - Complete instructions</li>
+                <li>✅ README_INMOTION.md - Quick reference</li>
+            </ul>
+        </div>
+        
+        <div class="info">
+            <h2>🚀 Quick Setup:</h2>
+            <ul>
+                <li>1. Upload to your InMotion hosting</li>
+                <li>2. Extract to ~/strandsv2 folder</li>
+                <li>3. Setup via cPanel → Setup Node.js App</li>
+                <li>4. Configure for strands.nytstands.org</li>
+                <li>5. Install dependencies & restart</li>
+            </ul>
+        </div>
+        
+        <a href="/" class="back-link">← Back to Game</a>
+    </div>
+</body>
+</html>
