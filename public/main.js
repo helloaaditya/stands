@@ -7,6 +7,7 @@ let selectedPuzzle;
 let theme;
 let words;
 let letters;
+let nonThemeWordsFound = []
 
 let hintTimes = 2;
 let hintsUsed = 0; // Track how many hints were used
@@ -541,16 +542,21 @@ class Game extends Phaser.Scene {
     const isSpangram = word === spangramWord;
     const alreadyFound = this.foundWords.includes(word);
     const isNonThemeWord = nonThemeWords.includes(word);
+    const nonThemeAlreadyFound = nonThemeWordsFound.includes(word);
 
     if(alreadyFound){
       showSelectedTextLater = "Word already found!";
     }
 
-    if(isNonThemeWord && !alreadyFound){
-      hintTimes += 1;
-      document.getElementById("hint-button").innerHTML = `Get a hint (${hintTimes})`;
-      showSelectedTextLater = '👍 Non-theme word found! Hint +1';
-      this.foundWords.push(word);
+    if(isNonThemeWord){
+      if(!nonThemeAlreadyFound) {
+        hintTimes += 1;
+        document.getElementById("hint-button").innerHTML = `Get a hint (${hintTimes})`;
+        showSelectedTextLater = '👍 Non-theme word found! Hint +1';
+        nonThemeWordsFound.push(word);
+      } else {
+        showSelectedTextLater = 'Word already found!';
+      }
     }    
 
     // ✅ VALID WORD (theme word OR spangram)
