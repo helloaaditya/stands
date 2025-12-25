@@ -567,11 +567,11 @@ class Game extends Phaser.Scene {
       this.foundWordPositions.push([...this.selectedCells]);
 
       // Decide highlight color
-      let highlightColor = foundedColors;
+      let highlightColor = 0xC3B1E1;
       showSelectedTextLater = "Excellent!";
 
       if (isSpangram) {
-        highlightColor = 0xffeb3b; // Yellow for spangram
+        highlightColor = 0xFFFAA0; // Yellow for spangram
         showSelectedTextLater = "🎉 Spangram Found! 🎉";
       } 
       // else if (nonThemeWords.includes(word)) {
@@ -803,13 +803,15 @@ class Game extends Phaser.Scene {
       this.hintPositions = [];
 
       const unfoundWords = words.filter(
-        (word) => !this.foundWords.includes(word)
+        (word) =>
+          !this.foundWords.includes(word) &&
+          word !== spangram
       );
       if (unfoundWords.length > 0) {
         const hintWord =
           unfoundWords[Math.floor(Math.random() * unfoundWords.length)];
         this.currentHint = hintWord;
-        document.getElementById("hint-display").textContent = hintWord;
+        // document.getElementById("hint-display").textContent = hintWord;
         const positions = this.findWord(hintWord);
         if (positions) {
           this.hintPositions = positions;
@@ -888,6 +890,24 @@ class Game extends Phaser.Scene {
     // Clear hint
     document.getElementById("hint-display").textContent = "";
     this.currentHint = null;
+
+    const showSelectedText = document.getElementById("show-selected");
+    showSelectedText.textContent = "BEGIN!";
+    showSelectedText.style.paddingBottom = "4px";
+
+    hintsUsed = 0;
+    hintTimes = 2;
+    document.getElementById("hint-button").innerHTML = `Get a hint (${hintTimes})`; 
+    
+    // Clear ALL selection circles
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 6; c++) {
+        const circle = this.selectionCircles?.[r]?.[c];
+        if (circle) {
+          circle.setAlpha(0);
+        }
+      }
+    }    
     
     this.updateFoundWordsText(words);
     this.updateColors();
@@ -917,6 +937,8 @@ document.getElementById("new-puzzle-button").addEventListener("click", () => {
 // Reset Timer button event listener
 document.getElementById("reset-timer-btn").addEventListener("click", () => {
   resetTimer();
+  const scene = game.scene.scenes[0];
+  scene.resetGame();
 });
 
 // Initialize game - called after puzzles are loaded
