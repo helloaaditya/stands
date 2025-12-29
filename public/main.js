@@ -7,12 +7,15 @@ let selectedPuzzle;
 let theme;
 let words;
 let letters;
-let nonThemeWordsFound = []
+let nonthemewordCount;
+let nonThemeWordsFound = [];
 
 let hintTimes = 2;
 let hintsUsed = 0; // Track how many hints were used
 let clickSelectMode = false; // For click-to-select functionality
 let game; // Declare game variable early to avoid TDZ issues
+let pauses = 2;
+let isPaused = false;
 
 // Timer variables
 let puzzleStartTime = null;
@@ -33,6 +36,7 @@ async function loadPuzzles() {
       letters = selectedPuzzle.letters;
       spangram = selectedPuzzle.spangram;
       nonThemeWords = selectedPuzzle.nonThemeWords;
+      nonthemewordCount = nonThemeWords.length;
       document.getElementById("theme-text").textContent = theme;
       
       // Now that puzzles are loaded, initialize the game
@@ -54,6 +58,7 @@ function updatePuzzle(index) {
   letters = selectedPuzzle.letters;
   spangram = selectedPuzzle.spangram;
   nonThemeWords = selectedPuzzle.nonThemeWords;
+  nonthemewordCount = nonThemeWords.length;
   document.getElementById("theme-text").textContent = theme;
   
   // Reset timer for new puzzle (don't start automatically)
@@ -91,6 +96,17 @@ function stopTimer() {
     clearInterval(timerInterval);
     timerInterval = null;
   }
+}
+
+function resumeTimer() {
+  if (timerInterval) return;
+
+  puzzleStartTime = Date.now() - elapsedSeconds * 1000;
+
+  timerInterval = setInterval(() => {
+    elapsedSeconds = Math.floor((Date.now() - puzzleStartTime) / 1000);
+    updateTimerDisplay();
+  }, 1000);
 }
 
 function resetTimer() {
@@ -132,6 +148,15 @@ class Game extends Phaser.Scene {
         },
       },
     });
+  }
+
+  cancelSelection() {
+    this.selectedCells.forEach(cell =>
+      this.highlightCell(cell.row, cell.col, false)
+    );
+    this.selectedCells = [];
+    this.isSelecting = false;
+    this.lineGraphics.clear();
   }
 
   updateColors() {
@@ -393,9 +418,11 @@ class Game extends Phaser.Scene {
     }
 
     // Enhanced touch/click interaction with larger hit area for mobile
-    const touchRadius = cellDimention * 0.65; // 30% larger hit area for better mobile UX
+    const touchRadius = cellDimention * 0.5; // 30% larger hit area for better mobile UX
     
     this.input.on("pointerdown", (pointer) => {
+      if (isPaused) return;
+
       // Start timer on first user interaction
       startTimer();
       
@@ -458,6 +485,8 @@ class Game extends Phaser.Scene {
 
     // Enhanced drag to select with smooth mobile interaction
     this.input.on("pointermove", (pointer) => {
+      if (isPaused) return;
+
       if (!this.isSelecting) return;
       
       for (let r = 0; r < rows; r++) {
@@ -479,24 +508,42 @@ class Game extends Phaser.Scene {
               (cell) => cell.row === r && cell.col === c
             );
             
+            const lastIndex = this.selectedCells.length - 1;
+            const lastCell = this.selectedCells[lastIndex];
+            const prevCell = this.selectedCells[lastIndex - 1];
+
+            // 🔙 BACKTRACK: drag back to previous cell → deselect last
+            if (
+              alreadySelected &&
+              prevCell &&
+              prevCell.row === r &&
+              prevCell.col === c
+            ) {
+              const removed = this.selectedCells.pop();
+              this.highlightCell(removed.row, removed.col, false);
+              return;
+            }
+
+            // ➕ NORMAL FORWARD SELECTION
             if (!alreadySelected && !isFound) {
-              // Check if adjacent to the last selected cell
-              const lastCell = this.selectedCells[this.selectedCells.length - 1];
               const dr = Math.abs(r - lastCell.row);
               const dc = Math.abs(c - lastCell.col);
-              
-              if ((dr === 0 && dc === 1) || (dr === 1 && dc === 0) || (dr === 1 && dc === 1)) {
+
+              if ((dr <= 1 && dc <= 1)) {
                 this.selectedCells.push({ row: r, col: c });
                 this.highlightCell(r, c, true);
                 return;
               }
             }
+
           }
         }
       }
     });
 
     this.input.on("pointerup", () => {
+      if (isPaused) return;
+
       if (this.isSelecting && this.selectedCells.length > 1) {
         this.validateAndMarkWord();
         this.isSelecting = false;
@@ -554,6 +601,13 @@ class Game extends Phaser.Scene {
         document.getElementById("hint-button").innerHTML = `Get a hint (${hintTimes})`;
         showSelectedTextLater = '👍 Non-theme word found! Hint +1';
         nonThemeWordsFound.push(word);
+
+        const element = document.getElementById("found-nonthemewords-text");
+        if (element) {
+          element.textContent = `Found ${nonThemeWordsFound.length} of ${nonthemewordCount} non-theme words`;
+          element.style.paddingTop = "4px";
+        }
+
       } else {
         showSelectedTextLater = 'Word already found!';
       }
@@ -725,6 +779,12 @@ class Game extends Phaser.Scene {
       element.textContent = `Found ${foundCount} of ${totalCount} theme words`;
       element.style.paddingTop = "4px";
     }
+
+    const element1 = document.getElementById("found-nonthemewords-text");
+    if (element1) {
+      element1.textContent = `Found ${nonThemeWordsFound.length} of ${nonthemewordCount} non-theme words`;
+      element1.style.paddingTop = "4px";
+    }    
     
     // Check if puzzle is complete
     if (foundCount === totalCount && foundCount > 0) {
@@ -871,6 +931,11 @@ class Game extends Phaser.Scene {
     this.cellColors = Array(8)
       .fill()
       .map(() => Array(6).fill(foundedColors));
+
+    pauses = 2;
+    isPaused = false;
+    this.input.enabled = true;
+    document.getElementById("pause-btn").textContent = `Pause (${pauses})`;
     
     // Update grid with new puzzle letters
     for (let r = 0; r < 8; r++) {
@@ -941,11 +1006,43 @@ document.getElementById("reset-timer-btn").addEventListener("click", () => {
   scene.resetGame();
 });
 
+// Pause button event listener
+document.getElementById("pause-btn").addEventListener("click", () => {
+  const scene = game.scene.scenes[0];
+
+  // ⏸ PAUSE
+  if (!isPaused) {
+    if (pauses <= 0) return;
+
+    isPaused = true;
+    pauses--;
+
+    scene.cancelSelection(); // 🔥 critical
+    scene.input.enabled = false;
+    stopTimer();
+
+    document.getElementById("pause-btn").textContent = "Resume";
+    return;
+  }
+
+  // ▶ RESUME
+  isPaused = false;
+  scene.input.enabled = true;
+
+  if (timerStarted) {
+    resumeTimer();
+  }
+
+  document.getElementById("pause-btn").textContent = `Pause (${pauses})`;
+});
+
 // Initialize game - called after puzzles are loaded
 function initializeGame() {
   const showSelectedText = document.getElementById("show-selected");
   showSelectedText.textContent = "BEGIN!";
   showSelectedText.style.paddingBottom = "4px";
+
+  document.getElementById("pause-btn").textContent = `Pause (${pauses})`;
 
   let initialBgColor = 0xf5f7fa;
   if (document.body.classList.contains("midnight-theme") || document.body.classList.contains("neon-theme")) {
