@@ -224,11 +224,11 @@ async function editPuzzle(id) {
         updateWordTags();
         
         // Load non-theme words (handle both array and legacy single string)
-        if (Array.isArray(puzzle.nonThemeWords)) {
-            nonThemeWords = puzzle.nonThemeWords;
-        } else if (puzzle.nonThemeWord) {
+        if (Array.isArray(puzzle.non_theme_words)) {
+            nonThemeWords = puzzle.non_theme_words;
+        } else if (puzzle.non_theme_words) {
             // Legacy format - convert single nonThemeWord to array
-            nonThemeWords = [puzzle.nonThemeWord];
+            nonThemeWords = [puzzle.non_theme_words];
         } else {
             nonThemeWords = [];
         }

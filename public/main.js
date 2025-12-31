@@ -26,9 +26,17 @@ let timerStarted = false;
 async function loadPuzzles() {
   try {
     const response = await fetch("/api/puzzles");
-    puzzles = await response.json();
+    const rawPuzzles = await response.json();
+    
+    // Parse JSON string fields into actual arrays/objects
+    puzzles = rawPuzzles.map(puzzle => ({
+      ...puzzle,
+      letters: typeof puzzle.letters === 'string' ? JSON.parse(puzzle.letters) : puzzle.letters,
+      words: typeof puzzle.words === 'string' ? JSON.parse(puzzle.words) : puzzle.words,
+      nonThemeWords: typeof puzzle.non_theme_words === 'string' ? JSON.parse(puzzle.non_theme_words) : puzzle.non_theme_words
+    }));
+    
     if (puzzles.length > 0) {
-      // Set initial puzzle data before creating game
       currentPuzzleIndex = 0;
       selectedPuzzle = puzzles[0];
       theme = selectedPuzzle.theme;
@@ -39,7 +47,6 @@ async function loadPuzzles() {
       nonthemewordCount = nonThemeWords.length;
       document.getElementById("theme-text").textContent = theme;
       
-      // Now that puzzles are loaded, initialize the game
       initializeGame();
     }
   } catch (error) {
