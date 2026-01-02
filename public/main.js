@@ -160,6 +160,18 @@ class Game extends Phaser.Scene {
     });
   }
 
+  updateSelectedTextLive() {
+    const el = document.getElementById("show-selected");
+    if (!el) return;
+
+    const word = this.selectedCells
+      .map(cell => this.grid[cell.row][cell.col])
+      .join("")
+      .toUpperCase();
+
+    el.textContent = word;
+  }
+
   cancelSelection() {
     this.selectedCells.forEach(cell =>
       this.highlightCell(cell.row, cell.col, false)
@@ -708,6 +720,7 @@ class Game extends Phaser.Scene {
     }
 
     this.drawLine();
+    this.updateSelectedTextLive();
   }
 
   drawLine() {
