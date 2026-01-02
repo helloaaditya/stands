@@ -881,7 +881,7 @@ class Game extends Phaser.Scene {
         const hintWord =
           unfoundWords[Math.floor(Math.random() * unfoundWords.length)];
         this.currentHint = hintWord;
-        // document.getElementById("hint-display").textContent = hintWord;
+        document.getElementById("hint-display").textContent = hintWord;
         const positions = this.findWord(hintWord);
         if (positions) {
           this.hintPositions = positions;
