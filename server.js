@@ -106,7 +106,6 @@ io.on("connection", (socket) => {
         hintsUsed: hintsUsed || 0
       });
       
-      console.log('scoreUpdate', result)
       // Emit real-time update to all connected clients
       if (result.leaderboard) {
         io.emit("leaderboardUpdate", { 

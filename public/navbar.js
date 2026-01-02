@@ -88,6 +88,8 @@ document.addEventListener("DOMContentLoaded", function () {
         
         // Save theme to localStorage
         localStorage.setItem("theme", theme.id);
+        localStorage.setItem("puzzleID", theme.id);
+        localStorage.setItem("puzzleTheme", theme.name);
         
         // Update game colors
         if (typeof game !== 'undefined' && game.scene && game.scene.scenes[0]) {
@@ -134,35 +136,124 @@ document.addEventListener("DOMContentLoaded", function () {
     body.style.backgroundAttachment = "fixed";
   }
 
-  // Puzzle menu modal
+  // Puzzle menu modal - NOW WITH CATEGORY SELECTION
   const menuBtn = document.getElementById("menu-btn");
   const puzzleModal = document.getElementById("puzzle-menu-modal");
   const closeMenu = document.getElementById("close-menu");
   const puzzleList = document.getElementById("puzzle-list");
 
-  menuBtn.addEventListener("click", function () {
-    // Populate puzzle list
+  // Store current view state
+  let currentCategory = null;
+
+  // Extract unique categories from puzzles
+  function getUniqueCategories() {
+    if (typeof puzzles === 'undefined' || !Array.isArray(puzzles)) {
+      return [];
+    }
+    const categories = [...new Set(puzzles.map(p => p.category))];
+    return categories.sort();
+  }
+
+  // Get puzzles for a specific category
+  function getPuzzlesByCategory(category) {
+    if (typeof puzzles === 'undefined' || !Array.isArray(puzzles)) {
+      return [];
+    }
+    return puzzles.filter(p => p.category === category);
+  }
+
+  // Display categories
+  function displayCategories() {
+    currentCategory = null;
     puzzleList.innerHTML = "";
-    puzzles.forEach((puzzle, index) => {
+    
+    const categories = getUniqueCategories();
+    
+    if (categories.length === 0) {
+      puzzleList.innerHTML = '<p style="text-align: center; padding: 20px;">No puzzles available</p>';
+      return;
+    }
+    
+    categories.forEach((category) => {
+      const categoryItem = document.createElement("div");
+      categoryItem.className = "puzzle-item";
+      const puzzleCount = getPuzzlesByCategory(category).length;
+      
+      categoryItem.innerHTML = `
+        <h3>📁 ${category}</h3>
+        <p>${puzzleCount} puzzle${puzzleCount !== 1 ? 's' : ''}</p>
+      `;
+      
+      categoryItem.addEventListener("click", function () {
+        displayThemesForCategory(category);
+      });
+      
+      puzzleList.appendChild(categoryItem);
+    });
+  }
+
+  // Display themes for a specific category
+  function displayThemesForCategory(category) {
+    currentCategory = category;
+    puzzleList.innerHTML = "";
+    
+    // Add back button
+    const backButton = document.createElement("div");
+    backButton.className = "puzzle-item";
+    backButton.style.cursor = "pointer";
+    backButton.style.borderColor = "#6366f1";
+    backButton.innerHTML = `
+      <h3>← Back to Categories</h3>
+    `;
+    backButton.addEventListener("click", function () {
+      displayCategories();
+    });
+    puzzleList.appendChild(backButton);
+    
+    // Add category header
+    const header = document.createElement("div");
+    header.style.padding = "10px 0";
+    header.style.textAlign = "center";
+    header.innerHTML = `<h2 style="margin: 0; font-size: 1.5em;">Category: ${category}</h2>`;
+    puzzleList.appendChild(header);
+    
+    // Get and display themes for this category
+    const categoryPuzzles = getPuzzlesByCategory(category);
+    
+    categoryPuzzles.forEach((puzzle, index) => {
+      // Find the actual index in the full puzzles array
+      const actualIndex = puzzles.findIndex(p => p.id === puzzle.id);
+      
       const puzzleItem = document.createElement("div");
       puzzleItem.className = "puzzle-item";
       puzzleItem.innerHTML = `
-        <h3>${puzzle.theme}</h3>
+        <h3>🎯 ${puzzle.theme}</h3>
         <p>${puzzle.words.length} words</p>
+        <p style="font-size: 0.9em; opacity: 0.8;">Spangram: ${puzzle.spangram}</p>
       `;
+      
       puzzleItem.addEventListener("click", function () {
-        updatePuzzle(index);
-        puzzleModal.style.display = "none";
-        // Reset game state
-        if (typeof game !== 'undefined' && game.scene && game.scene.scenes[0]) {
-          const gameScene = game.scene.scenes[0];
-          if (gameScene && gameScene.resetGame) {
-            gameScene.resetGame();
+        if (actualIndex !== -1) {
+          updatePuzzle(actualIndex);
+          puzzleModal.style.display = "none";
+          
+          // Reset game state
+          if (typeof game !== 'undefined' && game.scene && game.scene.scenes[0]) {
+            const gameScene = game.scene.scenes[0];
+            if (gameScene && gameScene.resetGame) {
+              gameScene.resetGame();
+            }
           }
         }
       });
+      
       puzzleList.appendChild(puzzleItem);
     });
+  }
+
+  // Open puzzle menu - show categories first
+  menuBtn.addEventListener("click", function () {
+    displayCategories();
     puzzleModal.style.display = "flex";
   });
 
