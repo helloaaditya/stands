@@ -452,7 +452,6 @@ async function loadEmails() {
                 ? `<span class="hint-badge">${entry.hintsUsed} hints</span>` 
                 : '—';     
             const row = document.createElement('tr');
-            console.log('entry',entry)
             row.innerHTML = `
                 <td>${entry.email || 'N/A'}</td>
                 <td>${entry.username}</td>
@@ -514,15 +513,15 @@ async function exportEmails() {
         }
         
         const data = await response.json();
-        if (!data.emails || data.emails.length === 0) {
+        if (!data.entries || data.entries.length === 0) {
             showError('No emails found in database');
             return;
         }
         
         // Create CSV content
-        const csvContent = 'Email,Username,Puzzle,Time,Hints Used,Timestamp\n' +
-            data.emails.map(entry => 
-                `${entry.email},${entry.username},${entry.puzzle},${entry.time},${entry.hintsUsed},${entry.timestamp}`
+        const csvContent = 'Email,Username,Puzzle,Time,Hints,Timestamp\n' +
+            data.entries.map(entry => 
+                `${entry.email},${entry.username},${entry.theme},${entry.timeSeconds},${entry.hintsUsed},${entry.completedAt}`
             ).join('\n');
         
         // Download CSV file
@@ -536,7 +535,7 @@ async function exportEmails() {
         link.click();
         document.body.removeChild(link);
         
-        showSuccess(`Exported ${data.emails.length} email entries!`);
+        showSuccess(`Exported ${data.entries.length} email entries!`);
     } catch (error) {
         console.error('Export error:', error);
         showError('Failed to export emails');

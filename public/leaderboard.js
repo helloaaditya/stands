@@ -118,7 +118,7 @@
     const leaderboardList = document.getElementById('leaderboard-list');
     leaderboardList.innerHTML = '<div class="loading-leaderboard">Loading scores...</div>';
     
-    socket.emit('leaderboard');
+    // socket.emit('leaderboard');
   }
   
   // Receive leaderboard data

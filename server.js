@@ -83,13 +83,13 @@ io.on("connection", (socket) => {
       callback(false);
       return;
     }
-
+    
     if (!puzzleId) {
       console.log('ERROR: puzzleId is missing!');
       callback({ success: false, error: 'Puzzle ID is required' });
       return;
     }
-
+    
     if (!puzzleTheme) {
       console.log('ERROR: puzzleTheme is missing!');
       callback({ success: false, error: 'Puzzle Theme is required' });
@@ -106,6 +106,7 @@ io.on("connection", (socket) => {
         hintsUsed: hintsUsed || 0
       });
       
+      console.log('scoreUpdate', result)
       // Emit real-time update to all connected clients
       if (result.leaderboard) {
         io.emit("leaderboardUpdate", { 
