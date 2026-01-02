@@ -46,6 +46,9 @@ async function loadPuzzles() {
       nonThemeWords = selectedPuzzle.nonThemeWords;
       nonthemewordCount = nonThemeWords.length;
       document.getElementById("theme-text").textContent = theme;
+
+      localStorage.setItem('puzzleID',currentPuzzleIndex);
+      localStorage.setItem('puzzleTheme',theme);
       
       initializeGame();
     }

@@ -422,10 +422,11 @@ async function loadEmails() {
 
         const data = await response.json();
         const emails = data.emails || data || [];
+        console.log(emails)
         
         // Update stats
-        const uniqueEmails = new Set(emails.map(entry => entry.email)).size;
-        document.getElementById('totalEmails').textContent = emails.length;
+        const uniqueEmails = data.stats.uniqueUsers;
+        document.getElementById('totalEmails').textContent = data.stats.totalEmails;
         document.getElementById('uniqueEmails').textContent = uniqueEmails;
         
         // Populate table
@@ -434,33 +435,61 @@ async function loadEmails() {
             tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px; color: #94a3b8;">No emails collected yet</td></tr>';
             return;
         }
-        
-        tbody.innerHTML = emails.map(entry => {
+
+        tbody.innerHTML = '';
+
+        data.entries.forEach(entry => {
             const timeFormatted = entry.time || formatTime(entry.timeSeconds || 0);
-            const dateFormatted = new Date(entry.timestamp || entry.completedAt).toLocaleDateString('en-US', {
+            const dateFormatted = new Date(entry.completedAt).toLocaleDateString('en-US', {
                 month: 'short',
                 day: 'numeric',
                 year: 'numeric',
                 hour: '2-digit',
                 minute: '2-digit'
-            });
-            
-            const puzzleName = entry.puzzle || entry.theme || 'Unknown';
+            });       
+            const puzzleName = entry.theme || 'Unknown';
             const hintDisplay = (entry.hintsUsed || 0) > 0 
                 ? `<span class="hint-badge">${entry.hintsUsed} hints</span>` 
-                : '—';
-            
-            return `
-                <tr>
-                    <td style="font-weight: 600;">${entry.email}</td>
-                    <td>${entry.username}</td>
-                    <td>${puzzleName}</td>
-                    <td><span class="time-badge">${timeFormatted}</span></td>
-                    <td>${hintDisplay}</td>
-                    <td style="font-size: 13px; color: #64748b;">${dateFormatted}</td>
-                </tr>
+                : '—';     
+            const row = document.createElement('tr');
+            console.log('entry',entry)
+            row.innerHTML = `
+                <td>${entry.email || 'N/A'}</td>
+                <td>${entry.username}</td>
+                <td>${puzzleName}</td>
+                <td><span class="time-badge">${timeFormatted}</span></td>
+                <td>${hintDisplay}</td>
+                <td>${dateFormatted}</td>
             `;
-        }).join('');
+            tbody.appendChild(row);
+        });        
+        
+        // tbody.innerHTML = emails.map(entry => {
+        //     const timeFormatted = entry.time || formatTime(entry.timeSeconds || 0);
+        //     const dateFormatted = new Date(entry.timestamp || entry.completedAt).toLocaleDateString('en-US', {
+        //         month: 'short',
+        //         day: 'numeric',
+        //         year: 'numeric',
+        //         hour: '2-digit',
+        //         minute: '2-digit'
+        //     });
+            
+        //     const puzzleName = entry.puzzle || entry.theme || 'Unknown';
+        //     const hintDisplay = (entry.hintsUsed || 0) > 0 
+        //         ? `<span class="hint-badge">${entry.hintsUsed} hints</span>` 
+        //         : '—';
+            
+        //     return `
+        //         <tr>
+        //             <td style="font-weight: 600;">${entry.email}</td>
+        //             <td>${entry.username}</td>
+        //             <td>${puzzleName}</td>
+        //             <td><span class="time-badge">${timeFormatted}</span></td>
+        //             <td>${hintDisplay}</td>
+        //             <td style="font-size: 13px; color: #64748b;">${dateFormatted}</td>
+        //         </tr>
+        //     `;
+        // }).join('');
         
     } catch (error) {
         console.error('Load emails error:', error);

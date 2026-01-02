@@ -69,6 +69,58 @@ io.on("connection", (socket) => {
     }
   });
 
+  // Handle score submission via Socket.IO
+  socket.on('scoreUpdate', async (data, callback) => {
+    const { username, email, timeSeconds, hintsUsed, puzzleId, puzzleTheme } = data;
+    
+    // Validation
+    if (!username || timeSeconds === undefined) {
+      callback(false);
+      return;
+    }
+    
+    if (username.length > 32 || username.length < 1) {
+      callback(false);
+      return;
+    }
+
+    if (!puzzleId) {
+      console.log('ERROR: puzzleId is missing!');
+      callback({ success: false, error: 'Puzzle ID is required' });
+      return;
+    }
+
+    if (!puzzleTheme) {
+      console.log('ERROR: puzzleTheme is missing!');
+      callback({ success: false, error: 'Puzzle Theme is required' });
+      return;
+    }    
+    
+    try {
+      const result = await callAPI('/leaderboard/save.php', 'POST', {
+        puzzleId: puzzleId,
+        puzzleTheme: puzzleTheme,
+        username,
+        email: email || '',
+        timeSeconds,
+        hintsUsed: hintsUsed || 0
+      });
+      
+      // Emit real-time update to all connected clients
+      if (result.leaderboard) {
+        io.emit("leaderboardUpdate", { 
+          puzzleId, 
+          leaderboard: result.leaderboard 
+        });
+      }
+      
+      callback(true); // Success
+    } catch (error) {
+      console.error("Error saving score:", error);
+      callback(false); // Error
+    }
+  });
+  
   socket.on("disconnect", () => {
     console.log("Disconnected...");
   });
@@ -180,7 +232,7 @@ app.get("/api/puzzles/:puzzleId/leaderboard", async (req, res) => {
 // Export emails (admin only)
 app.get("/api/export-emails", requireAuth, async (req, res) => {
   try {
-    const emailData = await callAPI('/export-emails.php');
+    const emailData = await callAPI('/leaderboard/get.php', 'GET');
     res.json(emailData);
   } catch (error) {
     console.error('Error exporting emails:', error);
@@ -224,46 +276,46 @@ app.delete("/api/puzzles/:id", requireAuth, async (req, res) => {
 });
 
 // Submit score for a puzzle
-app.post("/api/puzzles/:puzzleId/score", async (req, res) => {
-  const puzzleId = parseInt(req.params.puzzleId);
-  const { username, email, timeSeconds, hintsUsed } = req.body;
+// app.post("/api/puzzles/:puzzleId/score", async (req, res) => {
+//   const puzzleId = parseInt(req.params.puzzleId);
+//   const { username, email, timeSeconds, hintsUsed } = req.body;
   
-  // Validation
-  if (!username || !email || timeSeconds === undefined) {
-    return res.status(400).json({ 
-      error: "Missing required fields: username, email, timeSeconds" 
-    });
-  }
+//   // Validation
+//   if (!username || !email || timeSeconds === undefined) {
+//     return res.status(400).json({ 
+//       error: "Missing required fields: username, email, timeSeconds" 
+//     });
+//   }
   
-  if (username.length > 32 || username.length < 1) {
-    return res.status(400).json({ 
-      error: "Username must be 1-32 characters" 
-    });
-  }
+//   if (username.length > 32 || username.length < 1) {
+//     return res.status(400).json({ 
+//       error: "Username must be 1-32 characters" 
+//     });
+//   }
   
-  try {
-    const result = await callAPI('/submit-score.php', 'POST', {
-      puzzleId,
-      username,
-      email,
-      timeSeconds,
-      hintsUsed: hintsUsed || 0
-    });
+//   try {
+//     const result = await callAPI('/leaderboard/save.php', 'POST', {
+//       puzzleId,
+//       username,
+//       email,
+//       timeSeconds,
+//       hintsUsed: hintsUsed || 0
+//     });
     
-    // Emit real-time update to all connected clients
-    if (result.leaderboard) {
-      io.emit("leaderboardUpdate", { 
-        puzzleId, 
-        leaderboard: result.leaderboard 
-      });
-    }
+//     // Emit real-time update to all connected clients
+//     if (result.leaderboard) {
+//       io.emit("leaderboardUpdate", { 
+//         puzzleId, 
+//         leaderboard: result.leaderboard 
+//       });
+//     }
     
-    res.status(201).json(result);
-  } catch (error) {
-    console.error("Error saving score:", error);
-    res.status(500).json({ error: "Failed to save score" });
-  }
-});
+//     res.status(201).json(result);
+//   } catch (error) {
+//     console.error("Error saving score:", error);
+//     res.status(500).json({ error: "Failed to save score" });
+//   }
+// });
 
 // Start server
 server.listen(port, '0.0.0.0', () => {

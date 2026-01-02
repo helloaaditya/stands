@@ -170,8 +170,17 @@
   function submitScore(username, email, timeSeconds, hintsUsed) {
     // Check if this is a new user BEFORE currentUsername is updated
     const isNewUser = !currentUsername || currentUsername !== username;
-    
+    const puzzleId = localStorage.getItem('puzzleID');
+    const puzzleTheme = localStorage.getItem('puzzleTheme');
+        
+    if (!puzzleId) {
+      alert('Error: Puzzle ID not found');
+      return;
+    }
+
     const data = {
+      puzzleId: puzzleId,
+      puzzleTheme: puzzleTheme,
       username: username,
       timeSeconds: timeSeconds,
       email: email || '',
