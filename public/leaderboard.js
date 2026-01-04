@@ -117,8 +117,10 @@
   function loadLeaderboard() {
     const leaderboardList = document.getElementById('leaderboard-list');
     leaderboardList.innerHTML = '<div class="loading-leaderboard">Loading scores...</div>';
+
+    const puzzleID = localStorage.getItem('puzzleID');
     
-    // socket.emit('leaderboard');
+    socket.emit('leaderboard', puzzleID);
   }
   
   // Receive leaderboard data
@@ -131,25 +133,25 @@
     }
     
     // Convert to array and sort by time (lower is better)
-    const scores = Object.values(scoresData).sort((a, b) => {
-      // Handle both old score-based and new time-based entries
-      const aTime = a.timeSeconds || a.score || 999999;
-      const bTime = b.timeSeconds || b.score || 999999;
-      return aTime - bTime;
-    });
+    // const scores = Object.values(scoresData).sort((a, b) => {
+    //   // Handle both old score-based and new time-based entries
+    //   const aTime = a.timeSeconds || a.score || 999999;
+    //   const bTime = b.timeSeconds || b.score || 999999;
+    //   return aTime - bTime;
+    // });
     
     // Build leaderboard HTML
     let html = '';
-    scores.forEach((entry, index) => {
+    scoresData.forEach((entry, index) => {
       const rank = index + 1;
       const isTopRank = rank <= 3;
       const rankEmoji = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank;
       
-      // Format time display
-      const timeValue = entry.timeSeconds || entry.score || 0;
-      const minutes = Math.floor(timeValue / 60);
-      const seconds = timeValue % 60;
-      const timeDisplay = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+      // // Format time display
+      // const timeValue = entry.timeSeconds || entry.score || 0;
+      // const minutes = Math.floor(timeValue / 60);
+      // const seconds = timeValue % 60;
+      // const timeDisplay = `${minutes}:${seconds.toString().padStart(2, '0')}`;
       
       // Add asterisk if hints were used
       const hintIndicator = (entry.hintsUsed && entry.hintsUsed > 0) ? '*' : '';
@@ -158,7 +160,7 @@
         <div class="leaderboard-item ${isTopRank ? 'top-rank' : ''}">
           <div class="leaderboard-rank">${rankEmoji}</div>
           <div class="leaderboard-username">${escapeHtml(entry.username)}</div>
-          <div class="leaderboard-score">${timeDisplay}${hintIndicator}</div>
+          <div class="leaderboard-score">${entry.time_formatted}</div>
         </div>
       `;
     });

@@ -61,7 +61,7 @@ io.on("connection", (socket) => {
 
   socket.on("leaderboard", async (puzzleId) => {
     try {
-      const leaderboard = await callAPI('/leaderboard.php', 'GET', { puzzleId });
+      const leaderboard = await callAPI(`/leaderboard/getByID.php?puzzleId=${puzzleId}`, 'GET');
       socket.emit("leaderboard", leaderboard || []);
     } catch (error) {
       console.error("Error loading leaderboard:", error);
