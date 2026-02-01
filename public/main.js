@@ -1,4 +1,16 @@
-let cellDimention = 52; // Optimized for clarity and touch
+// Responsive cell size: compact on mobile, comfortable on desktop (iframe-friendly)
+function getCellDimension() {
+  const w = typeof window !== 'undefined' ? window.innerWidth : 400;
+  const maxCell = 50;
+  const minCell = 32;
+  const cols = 6;
+  const gap = 4;
+  const padding = 24;
+  const available = w - padding;
+  const cell = Math.floor((available - gap * (cols - 1)) / cols);
+  return Math.max(minCell, Math.min(maxCell, cell));
+}
+let cellDimention = getCellDimension();
 let foundedColors = 0x4a90e2;
 
 let puzzles = [];
@@ -296,6 +308,11 @@ class Game extends Phaser.Scene {
           this.cellBlocks[r][c].setFillStyle(this.cellBg, 1.0);
           this.cellShadows[r][c].setFillStyle(0x000000, 0.15);
         }
+        this.cellBlocks[r][c].setAlpha(1);
+        this.cellShadows[r][c].setAlpha(1);
+        if (this.cellHighlights && this.cellHighlights[r][c]) {
+          this.cellHighlights[r][c].setAlpha(isFound ? 0 : 0.6);
+        }
         this.cellTexts[r][c].setColor(this.cellText);
       }
     }
@@ -325,8 +342,8 @@ class Game extends Phaser.Scene {
     const rows = 8;
     const cols = 6;
     const cellSize = cellDimention;
-    const cellGap = 4; // Gap between cells
-    const edgePadding = 8; // Padding around edges for consistent spacing
+    const cellGap = 4;
+    const edgePadding = 10;
 
     this.grid = [];
     this.selectedCells = [];
@@ -359,50 +376,69 @@ class Game extends Phaser.Scene {
       }
     }
 
-    // Create 3D block graphics and text objects for each cell
+    // Create dimensional tile graphics: shadow, block, top highlight, and text
     this.cellShadows = [];
     this.cellBlocks = [];
+    this.cellHighlights = [];
     this.cellTexts = [];
     
     for (let r = 0; r < rows; r++) {
       this.cellShadows[r] = [];
       this.cellBlocks[r] = [];
+      this.cellHighlights[r] = [];
       this.cellTexts[r] = [];
       
       for (let c = 0; c < cols; c++) {
         const x = edgePadding + c * (cellSize + cellGap);
         const y = edgePadding + r * (cellSize + cellGap);
-        const blockWidth = cellSize * 0.85;
-        const blockHeight = cellSize * 0.95;
+        const blockWidth = cellSize * 0.88;
+        const blockHeight = cellSize * 0.92;
         const offsetX = (cellSize - blockWidth) / 2;
         const offsetY = (cellSize - blockHeight) / 2;
+        const centerX = x + offsetX + blockWidth / 2;
+        const centerY = y + offsetY + blockHeight / 2;
+        const shadowOffset = 4;
 
-        // Shadow for 3D effect (slightly offset)
+        // Strong shadow for clearly dimensional 3D tile
         const shadow = this.add.rectangle(
-          x + offsetX + cellSize / 2 + 2,
-          y + offsetY + cellSize / 2 + 2,
+          centerX + shadowOffset,
+          centerY + shadowOffset,
           blockWidth,
           blockHeight,
           0x000000,
-          0.15
+          0.38
         );
         shadow.setStrokeStyle(0, 0x000000);
         this.cellShadows[r][c] = shadow;
 
-        // Main block with rounded corners
+        // Main tile with visible edge (dimensional block)
         const block = this.add.rectangle(
-          x + offsetX + cellSize / 2,
-          y + offsetY + cellSize / 2,
+          centerX,
+          centerY,
           blockWidth,
           blockHeight,
           0xe8ecf0,
           1.0
         );
-        block.setStrokeStyle(2, 0xbdc3c7, 0.5);
+        block.setStrokeStyle(3, 0xb0b5bc, 1);
         this.cellBlocks[r][c] = block;
+
+        // Top highlight strip for obvious bevel / letter-tile look
+        const highlightHeight = Math.max(3, Math.floor(blockHeight * 0.16));
+        const highlight = this.add.rectangle(
+          centerX,
+          centerY - blockHeight / 2 + highlightHeight / 2,
+          blockWidth - 2,
+          highlightHeight,
+          0xffffff,
+          0.65
+        );
+        highlight.setDepth(1);
+        this.cellHighlights[r][c] = highlight;
 
         shadow.setAlpha(0);
         block.setAlpha(0);
+        highlight.setAlpha(0);
 
         const circle = this.add.circle(
           x + cellSize / 2,
@@ -416,25 +452,24 @@ class Game extends Phaser.Scene {
         this.selectionCircles[r] ??= [];
         this.selectionCircles[r][c] = circle;
 
-        // Letter text with enhanced visibility
+        // Letter text: bold with dimensional shadow for tile look
         const text = this.add
           .text(
             x + cellSize / 2,
             y + cellSize / 2,
             this.grid[r][c],
             {
-              fontSize: `${Math.floor(cellDimention * 0.62)}px`,
+              fontSize: `${Math.floor(cellDimention * 0.58)}px`,
               color: "#1a1a2e",
               fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
-              fontStyle: "900", // Extra bold
+              fontStyle: "900",
               stroke: "#ffffff",
-              strokeThickness: 1,
+              strokeThickness: 2,
             }
           )
           .setOrigin(0.5)
           .setDepth(10);
-        // Add subtle shadow for depth
-        text.setShadow(0, 1, '#000000', 0.2, false, true);
+        text.setShadow(2, 2, 'rgba(0,0,0,0.45)', 0, true);
         this.cellTexts[r][c] = text;
       }
     }
@@ -941,6 +976,7 @@ class Game extends Phaser.Scene {
       }
       this.drawFoundLine();
       this.updateFoundWordsText(words);
+      this.updateColors();
     }
   }
 

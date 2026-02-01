@@ -1,51 +1,51 @@
-// Theme configuration
+// Theme configuration: names and icons
 const themes = [
   {
     id: '',
-    name: 'Purple Dream',
-    icon: '💜',
+    name: 'Lavender Mist',
+    icon: '●',
     gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
   },
   {
     id: 'ocean-theme',
-    name: 'Ocean Breeze',
-    icon: '🌊',
+    name: 'Sea Glass',
+    icon: '◐',
     gradient: 'linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%)'
   },
   {
     id: 'sunset-theme',
-    name: 'Sunset Glow',
-    icon: '🌅',
+    name: 'Peach Glow',
+    icon: '◑',
     gradient: 'linear-gradient(135deg, #f97316 0%, #fb923c 100%)'
   },
   {
     id: 'forest-theme',
-    name: 'Forest Dream',
-    icon: '🌲',
+    name: 'Moss Garden',
+    icon: '◒',
     gradient: 'linear-gradient(135deg, #059669 0%, #10b981 100%)'
   },
   {
     id: 'royal-theme',
-    name: 'Royal Purple',
-    icon: '👑',
+    name: 'Amethyst',
+    icon: '◈',
     gradient: 'linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%)'
   },
   {
     id: 'midnight-theme',
-    name: 'Midnight Dark',
-    icon: '🌙',
+    name: 'Night Owl',
+    icon: '◔',
     gradient: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)'
   },
   {
     id: 'neon-theme',
-    name: 'Neon Lights',
+    name: 'Electric',
     icon: '⚡',
     gradient: 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%)'
   },
   {
     id: 'light-theme',
-    name: 'Simple Light',
-    icon: '☀️',
+    name: 'Paper White',
+    icon: '○',
     gradient: 'linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%)'
   }
 ];
