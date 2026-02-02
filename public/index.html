@@ -37,31 +37,31 @@
         --radius-xl: 20px;
         --radius-2xl: 24px;
         --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
-        --focus-ring: 0 0 0 3px rgba(102, 126, 234, 0.35);
+        --focus-ring: 0 0 0 3px rgba(191, 162, 252, 0.4);
         --touch-min: 44px;
-        --bg-color: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --bg-color: linear-gradient(135deg, #BFA2FC 0%, #a78bfa 100%);
         --container-bg: #ffffff;
-        --container-border: #667eea;
+        --container-border: #BFA2FC;
         --text-color: #2c3e50;
         --text-muted: #64748b;
-        --found-color: #667eea;
+        --found-color: #a78bfa;
         --found-text-color: #ffffff;
         --hint-color: #10b981;
-        --line-color: #bdc3c7;
-        --selection-color: #a78bfa;
+        --line-color: #c4b5fd;
+        --selection-color: #ddd6fe;
         --hint-line-color: #ef4444;
         --button-bg: #ffffff;
-        --button-text: #667eea;
-        --button-border: #667eea;
+        --button-text: #7c3aed;
+        --button-border: #BFA2FC;
         --hint-display-color: #ef4444;
         --score-text-color: #2c3e50;
         --score-plus-color: #10b981;
         --score-bg: #f3f4f6;
         --score-border: #d1d5db;
-        --shadow-light: rgba(102, 126, 234, 0.15);
-        --shadow-medium: rgba(102, 126, 234, 0.25);
-        --gradient-start: #667eea;
-        --gradient-end: #764ba2;
+        --shadow-light: rgba(191, 162, 252, 0.2);
+        --shadow-medium: rgba(191, 162, 252, 0.3);
+        --gradient-start: #BFA2FC;
+        --gradient-end: #a78bfa;
         --mobile-pad: 12px;
       }
 
@@ -226,7 +226,7 @@
       body {
         margin: 0;
         padding: 0;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #BFA2FC 0%, #a78bfa 100%);
         background-attachment: fixed;
         overflow-x: hidden;
         overflow-y: auto;
@@ -662,7 +662,7 @@
       }
 
       .close-btn {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
         border: none;
         font-size: 22px;
         cursor: pointer;
@@ -709,7 +709,7 @@
         color: var(--text-color);
         font-size: 18px;
         font-weight: 800;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
@@ -868,7 +868,7 @@
       .loading-leaderboard {
         text-align: center;
         padding: 20px;
-        color: #667eea;
+        color: var(--button-text);
         font-size: 16px;
       }
 
@@ -898,7 +898,7 @@
       .leaderboard-rank {
         font-size: 18px;
         font-weight: 900;
-        color: #667eea;
+        color: var(--button-text);
         min-width: 36px;
         text-align: center;
       }
@@ -919,7 +919,7 @@
       .leaderboard-score {
         font-size: 16px;
         font-weight: 900;
-        color: #667eea;
+        color: var(--button-text);
         background: #ede9fe;
         padding: 4px 12px;
         border-radius: 8px;

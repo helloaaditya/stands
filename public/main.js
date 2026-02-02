@@ -275,14 +275,14 @@ class Game extends Phaser.Scene {
       this.lineColor = 0x9ca3af;
       this.hintColor = 0x6b7280;
     }
-    // Default Purple Dream Theme
+    // Default Lavender (logo purple #BFA2FC)
     else if (body.className === "" || body.classList.contains("purple-theme")) {
-      this.bgColor = 0xf5f7fa;
-      this.cellBg = 0xe8ecf0;
-      this.cellText = "#2c3e50";
-      this.foundColor = 0x667eea;
-      this.selectionColor = 0xcce7ff;
-      this.lineColor = 0xbdc3c7;
+      this.bgColor = 0xf5f3ff;
+      this.cellBg = 0xede9fe;
+      this.cellText = "#1f2937";
+      this.foundColor = 0xa78bfa;
+      this.selectionColor = 0xddd6fe;
+      this.lineColor = 0xc4b5fd;
       this.hintColor = 0xe74c3c;
     }
 
@@ -452,7 +452,7 @@ class Game extends Phaser.Scene {
         this.selectionCircles[r] ??= [];
         this.selectionCircles[r][c] = circle;
 
-        // Letter text: bold with dimensional shadow for tile look
+        // Letter text: high contrast, minimal shadow for readability
         const text = this.add
           .text(
             x + cellSize / 2,
@@ -460,16 +460,16 @@ class Game extends Phaser.Scene {
             this.grid[r][c],
             {
               fontSize: `${Math.floor(cellDimention * 0.58)}px`,
-              color: "#1a1a2e",
+              color: "#1f2937",
               fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
-              fontStyle: "900",
+              fontStyle: "bold",
               stroke: "#ffffff",
-              strokeThickness: 2,
+              strokeThickness: 1,
             }
           )
           .setOrigin(0.5)
           .setDepth(10);
-        text.setShadow(2, 2, 'rgba(0,0,0,0.45)', 0, true);
+        text.setShadow(0, 1, 'rgba(0,0,0,0.12)', 0, true);
         this.cellTexts[r][c] = text;
       }
     }

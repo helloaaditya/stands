@@ -4,7 +4,7 @@ const themes = [
     id: '',
     name: 'Lavender Mist',
     icon: '●',
-    gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+    gradient: 'linear-gradient(135deg, #BFA2FC 0%, #a78bfa 100%)'
   },
   {
     id: 'ocean-theme',
