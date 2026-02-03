@@ -452,7 +452,7 @@ class Game extends Phaser.Scene {
         this.selectionCircles[r] ??= [];
         this.selectionCircles[r][c] = circle;
 
-        // Letter text: high contrast, minimal shadow for readability
+        // Letter text: NO text shadow for better readability - clean and crisp
         const text = this.add
           .text(
             x + cellSize / 2,
@@ -463,13 +463,10 @@ class Game extends Phaser.Scene {
               color: "#1f2937",
               fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
               fontStyle: "bold",
-              stroke: "#ffffff",
-              strokeThickness: 1,
             }
           )
           .setOrigin(0.5)
           .setDepth(10);
-        text.setShadow(0, 1, 'rgba(0,0,0,0.12)', 0, true);
         this.cellTexts[r][c] = text;
       }
     }
@@ -656,12 +653,12 @@ class Game extends Phaser.Scene {
       if(!nonThemeAlreadyFound) {
         hintTimes += 1;
         document.getElementById("hint-button").innerHTML = `Get a hint (${hintTimes})`;
-        showSelectedTextLater = '👍 Non-theme word found! Hint +1';
+        showSelectedTextLater = '👍 Bonus word found! Hint +1';
         nonThemeWordsFound.push(word);
 
         const element = document.getElementById("found-nonthemewords-text");
         if (element) {
-          element.textContent = `Found ${nonThemeWordsFound.length} of ${nonthemewordCount} non-theme words`;
+          element.textContent = `Found ${nonThemeWordsFound.length} of ${nonthemewordCount} bonus words`;
           element.style.paddingTop = "4px";
         }
 
@@ -684,13 +681,7 @@ class Game extends Phaser.Scene {
       if (isSpangram) {
         highlightColor = 0xFFFAA0; // Yellow for spangram
         showSelectedTextLater = "🎉 Spangram Found! 🎉";
-      } 
-      // else if (nonThemeWords.includes(word)) {
-      //   hintTimes += 1;
-      //   document.getElementById("hint-button").innerHTML = `Get a hint (${hintTimes})`;
-      //   highlightColor = 0x9e9e9e; // non-theme
-      //   showSelectedTextLater = '👍 Non-theme word found! Hint +1';
-      // }
+      }
 
       this.wordColors.push(highlightColor);
 
@@ -840,7 +831,7 @@ class Game extends Phaser.Scene {
 
     const element1 = document.getElementById("found-nonthemewords-text");
     if (element1) {
-      element1.textContent = `Found ${nonThemeWordsFound.length} of ${nonthemewordCount} non-theme words`;
+      element1.textContent = `Found ${nonThemeWordsFound.length} of ${nonthemewordCount} bonus words`;
       element1.style.paddingTop = "4px";
     }    
     
@@ -1121,7 +1112,8 @@ function initializeGame() {
     width: cellDimention * cols + cellGap * (cols - 1) + edgePadding * 2,
     height: cellDimention * rows + cellGap * (rows - 1) + edgePadding * 2,
     scale: {
-      autoCenter: Phaser.Scale.CENTER_HORIZONTALLY,
+      mode: Phaser.Scale.FIT,
+      autoCenter: Phaser.Scale.CENTER_BOTH,
     },
     backgroundColor: initialBgColor,
     dom: {
