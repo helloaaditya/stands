@@ -193,14 +193,39 @@ app.get("/api/categories/:catId/themes/:themeId/puzzles", async (req, res) => {
   }
 });
 
+// Demo puzzle when external API is unavailable (e.g. demo tools, first-run)
+const DEMO_PUZZLES = [
+  {
+    id: 1,
+    theme: "DEMO",
+    letters: [
+      ["S", "T", "A", "R", "T", "S"],
+      ["R", "E", "A", "D", "Y", "G"],
+      ["A", "N", "D", "G", "O", "O"],
+      ["N", "O", "G", "O", "D", "S"],
+      ["D", "E", "M", "O", "E", "E"],
+      ["S", "T", "A", "R", "T", "S"],
+      ["E", "N", "D", "G", "A", "M"],
+      ["E", "E", "E", "E", "E", "E"],
+    ],
+    words: ["STARTS", "READY", "AND", "GO", "GOOD", "DEMO", "GAME", "END"],
+    spangram: "STARTS",
+    nonThemeWords: ["GOOD", "END"],
+    non_theme_words: ["GOOD", "END"],
+  },
+];
+
 // Get all puzzles
 app.get("/api/puzzles", async (req, res) => {
   try {
-    const puzzles = await callAPI('/puzzles/get.php');
-    res.json(puzzles);
+    const puzzles = await callAPI("/puzzles/get.php");
+    if (Array.isArray(puzzles) && puzzles.length > 0) {
+      return res.json(puzzles);
+    }
   } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch puzzles' });
+    console.warn("API unavailable, serving demo puzzle:", error.message);
   }
+  res.json(DEMO_PUZZLES);
 });
 
 // Get single puzzle by ID

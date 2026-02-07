@@ -13,6 +13,12 @@ A modern, eye-catching word search puzzle game optimized for WordPress embedding
 - **Mobile Optimized** - Responsive design with mobile ad integration
 - **Admin Panel** - Full puzzle management with visual grid builder and email export
 
+## 👀 See the game before approving (demo link)
+
+**Can't run the build locally?** Use a free demo host to get a shareable link so you can see the game:
+
+- **[DEMO.md](./DEMO.md)** – Step-by-step: import this repo into **Glitch** or **Replit**, run it, and get a live URL to review. The app includes a built-in demo puzzle so it works even without the external API.
+
 ## 🚀 Quick Start
 
 1. Extract all files to your web server

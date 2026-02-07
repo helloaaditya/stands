@@ -35,6 +35,20 @@ let timerInterval = null;
 let elapsedSeconds = 0;
 let timerStarted = false;
 
+// Consolidated counts updater (theme + bonus) for compact display
+function updateFoundCounts() {
+  const themeEl = document.getElementById("found-words-text");
+  const bonusEl = document.getElementById("found-nonthemewords-text");
+  if (!themeEl) return;
+  const gameScene = game && game.scene && game.scene.scenes[0];
+  const foundTheme = gameScene ? (gameScene.foundWords || []).length : 0;
+  const totalTheme = Array.isArray(words) ? words.length : 0;
+  const foundBonus = Array.isArray(nonThemeWordsFound) ? nonThemeWordsFound.length : 0;
+  const totalBonus = nonthemewordCount || 0;
+  themeEl.textContent = `${foundTheme}/${totalTheme} Theme Words — ${foundBonus}/${totalBonus} Bonus Words`;
+  if (bonusEl) bonusEl.style.display = "none";
+}
+
 async function loadPuzzles() {
   try {
     const response = await fetch("/api/puzzles");
@@ -213,7 +227,10 @@ class Game extends Phaser.Scene {
       this.foundColor = 0x334155;
       this.selectionColor = 0x475569;
       this.lineColor = 0x64748b;
-      this.hintColor = 0xfbbf24;
+      // Use a brighter cyan/teal for hints/spangram visibility on dark background
+      this.hintColor = 0x22d3ee;
+      // Make spangram highlight more neon so it pops on dark backgrounds
+      this.spangramHighlight = 0x00ff88;
     }
     // Ocean Theme - keep existing ocean colors
     else if (body.classList.contains("ocean-theme")) {
@@ -241,7 +258,8 @@ class Game extends Phaser.Scene {
       this.cellBg = 0xa7f3d0;
       this.cellText = "#064e3b";
       this.foundColor = 0x10b981;
-      this.selectionColor = 0xd1fae5;
+      // stronger selection color for Moss Garden
+      this.selectionColor = 0x34d399;
       this.lineColor = 0x6ee7b7;
       this.hintColor = 0xf59e0b;
     }
@@ -251,7 +269,8 @@ class Game extends Phaser.Scene {
       this.cellBg = 0xe9d5ff;
       this.cellText = "#4c1d95";
       this.foundColor = 0xa78bfa;
-      this.selectionColor = 0xddd6fe;
+      // make the amethyst/purple selector more visible
+      this.selectionColor = 0xc084fc;
       this.lineColor = 0xc084fc;
       this.hintColor = 0xf59e0b;
     }
@@ -271,7 +290,8 @@ class Game extends Phaser.Scene {
       this.cellBg = 0xf5f5f5;
       this.cellText = "#000000";
       this.foundColor = 0xd1d5db;
-      this.selectionColor = 0xe5e7eb;
+      // stronger selector for Clean & Fresh (Paper White)
+      this.selectionColor = 0xd1d5db;
       this.lineColor = 0x9ca3af;
       this.hintColor = 0x6b7280;
     }
@@ -281,7 +301,8 @@ class Game extends Phaser.Scene {
       this.cellBg = 0xede9fe;
       this.cellText = "#1f2937";
       this.foundColor = 0xa78bfa;
-      this.selectionColor = 0xddd6fe;
+      // NYT Special initial selector pastel green
+      this.selectionColor = 0xA6F7D7;
       this.lineColor = 0xc4b5fd;
       this.hintColor = 0xe74c3c;
     }
@@ -299,8 +320,13 @@ class Game extends Phaser.Scene {
         );
         
         if (isFound) {
-          this.cellBlocks[r][c].setFillStyle(this.cellColors[r][c], 1.0);
+          // Recolor found cells to match current theme's foundColor so they adapt when theme changes
+          this.cellBlocks[r][c].setFillStyle(this.foundColor, 1.0);
           this.cellShadows[r][c].setFillStyle(0x000000, 0.3);
+          // Keep the internal cell color matrix in sync so persisted data reflects current theme
+          if (this.cellColors && this.cellColors[r]) {
+            this.cellColors[r][c] = this.foundColor;
+          }
         } else if (isSelected) {
           this.cellBlocks[r][c].setFillStyle(this.selectionColor, 1.0);
           this.cellShadows[r][c].setFillStyle(0x000000, 0.2);
@@ -656,11 +682,8 @@ class Game extends Phaser.Scene {
         showSelectedTextLater = '👍 Bonus word found! Hint +1';
         nonThemeWordsFound.push(word);
 
-        const element = document.getElementById("found-nonthemewords-text");
-        if (element) {
-          element.textContent = `Found ${nonThemeWordsFound.length} of ${nonthemewordCount} bonus words`;
-          element.style.paddingTop = "4px";
-        }
+        // update consolidated counts UI
+        updateFoundCounts();
 
       } else {
         showSelectedTextLater = 'Word already found!';
@@ -698,6 +721,7 @@ class Game extends Phaser.Scene {
 
       this.drawFoundLine();
       this.updateFoundWordsText(words);
+      updateFoundCounts();
       this.saveFoundWords();
 
       // Clear hint if this word was hinted
@@ -921,6 +945,15 @@ class Game extends Phaser.Scene {
           unfoundWords[Math.floor(Math.random() * unfoundWords.length)];
         this.currentHint = hintWord;
         document.getElementById("hint-display").textContent = hintWord;
+        // Also briefly show the hint on the hint button itself for better visibility on small screens
+        const hintBtn = document.getElementById("hint-button");
+        if (hintBtn) {
+          const prev = hintBtn.innerHTML;
+          hintBtn.innerHTML = hintWord;
+          setTimeout(() => {
+            hintBtn.innerHTML = `Get a hint (${hintTimes})`;
+          }, 3000);
+        }
         const positions = this.findWord(hintWord);
         if (positions) {
           this.hintPositions = positions;

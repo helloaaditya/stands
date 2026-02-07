@@ -2,7 +2,7 @@
 const themes = [
   {
     id: '',
-    name: 'Lavender Mist',
+    name: 'NYT Special',
     icon: '●',
     gradient: 'linear-gradient(135deg, #BFA2FC 0%, #a78bfa 100%)'
   },
@@ -38,13 +38,13 @@ const themes = [
   },
   {
     id: 'neon-theme',
-    name: 'Electric',
+    name: 'Retro Neon',
     icon: '⚡',
-    gradient: 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%)'
+    gradient: 'linear-gradient(135deg, #07020a 0%, #0b0b14 100%)'
   },
   {
     id: 'light-theme',
-    name: 'Paper White',
+    name: 'Clean & Fresh',
     icon: '○',
     gradient: 'linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%)'
   }
@@ -75,7 +75,7 @@ document.addEventListener("DOMContentLoaded", function () {
       
       themeCard.innerHTML = `
         <div class="theme-preview" style="background: ${theme.gradient};"></div>
-        <p class="theme-name">${theme.icon} ${theme.name}</p>
+        <p class="theme-name">${theme.name}</p>
       `;
       
       themeCard.addEventListener("click", function () {
