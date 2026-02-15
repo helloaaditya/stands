@@ -53,7 +53,7 @@ async function loadPuzzles() {
   try {
     const response = await fetch("/api/puzzles");
     const rawPuzzles = await response.json();
-    
+
     // Parse JSON string fields into actual arrays/objects
     puzzles = rawPuzzles.map(puzzle => ({
       ...puzzle,
@@ -61,7 +61,7 @@ async function loadPuzzles() {
       words: typeof puzzle.words === 'string' ? JSON.parse(puzzle.words) : puzzle.words,
       nonThemeWords: typeof puzzle.non_theme_words === 'string' ? JSON.parse(puzzle.non_theme_words) : puzzle.non_theme_words
     }));
-    
+
     if (puzzles.length > 0) {
       currentPuzzleIndex = 0;
       selectedPuzzle = puzzles[0];
@@ -73,9 +73,9 @@ async function loadPuzzles() {
       nonthemewordCount = nonThemeWords.length;
       document.getElementById("theme-text").textContent = theme;
 
-      localStorage.setItem('puzzleID',currentPuzzleIndex);
-      localStorage.setItem('puzzleTheme',theme);
-      
+      localStorage.setItem('puzzleID', currentPuzzleIndex);
+      localStorage.setItem('puzzleTheme', theme);
+
       initializeGame();
     }
   } catch (error) {
@@ -96,13 +96,13 @@ function updatePuzzle(index) {
   nonThemeWords = selectedPuzzle.nonThemeWords;
   nonthemewordCount = nonThemeWords.length;
   document.getElementById("theme-text").textContent = theme;
-  
+
   // Reset timer for new puzzle (don't start automatically)
   resetTimer();
   hintsUsed = 0;
   hintTimes = 2;
   document.getElementById("hint-button").innerHTML = `Get a hint (${hintTimes})`;
-  
+
   // Update found words text after loading new puzzle
   if (game && game.scene && game.scene.scenes[0]) {
     game.scene.scenes[0].updateFoundWordsText(words);
@@ -115,12 +115,12 @@ function updatePuzzle(index) {
 function startTimer() {
   // Only start if not already started
   if (timerStarted) return;
-  
+
   timerStarted = true;
   puzzleStartTime = Date.now();
   elapsedSeconds = 0;
   updateTimerDisplay();
-  
+
   timerInterval = setInterval(() => {
     elapsedSeconds = Math.floor((Date.now() - puzzleStartTime) / 1000);
     updateTimerDisplay();
@@ -148,7 +148,7 @@ function resumeTimer() {
 function resetTimer() {
   // Stop any existing timer
   stopTimer();
-  
+
   // Reset all timer variables
   timerStarted = false;
   puzzleStartTime = null;
@@ -209,7 +209,7 @@ class Game extends Phaser.Scene {
 
   updateColors() {
     const body = document.body;
-    
+
     // Default Light Mode - Simple black/white puzzle
     this.bgColor = 0xffffff;
     this.cellBg = 0xf5f5f5;
@@ -227,12 +227,9 @@ class Game extends Phaser.Scene {
       this.foundColor = 0x334155;
       this.selectionColor = 0x475569;
       this.lineColor = 0x64748b;
-      // Use a brighter cyan/teal for hints/spangram visibility on dark background
       this.hintColor = 0x22d3ee;
-      // Make spangram highlight more neon so it pops on dark backgrounds
-      this.spangramHighlight = 0x00ff88;
     }
-    // Ocean Theme - keep existing ocean colors
+    // Ocean Theme
     else if (body.classList.contains("ocean-theme")) {
       this.bgColor = 0xe0f2fe;
       this.cellBg = 0xbae6fd;
@@ -258,7 +255,6 @@ class Game extends Phaser.Scene {
       this.cellBg = 0xa7f3d0;
       this.cellText = "#064e3b";
       this.foundColor = 0x10b981;
-      // stronger selection color for Moss Garden
       this.selectionColor = 0x34d399;
       this.lineColor = 0x6ee7b7;
       this.hintColor = 0xf59e0b;
@@ -269,45 +265,23 @@ class Game extends Phaser.Scene {
       this.cellBg = 0xe9d5ff;
       this.cellText = "#4c1d95";
       this.foundColor = 0xa78bfa;
-      // make the amethyst/purple selector more visible
       this.selectionColor = 0xc084fc;
       this.lineColor = 0xc084fc;
       this.hintColor = 0xf59e0b;
     }
-    // Neon Theme - Bright neon colors on dark background
-    else if (body.classList.contains("neon-theme")) {
-      this.bgColor = 0x0f0f23;
-      this.cellBg = 0x1a1a2e;
-      this.cellText = "#00ff88";
-      this.foundColor = 0xff00ff;
-      this.selectionColor = 0x00ffff;
-      this.lineColor = 0xff00ff;
-      this.hintColor = 0xffff00;
-    }
-    // Simple Light Theme - Minimal black/white
-    else if (body.classList.contains("light-theme")) {
-      this.bgColor = 0xffffff;
-      this.cellBg = 0xf5f5f5;
-      this.cellText = "#000000";
-      this.foundColor = 0xd1d5db;
-      // stronger selector for Clean & Fresh (Paper White)
-      this.selectionColor = 0xd1d5db;
-      this.lineColor = 0x9ca3af;
-      this.hintColor = 0x6b7280;
-    }
-    // Default Lavender (logo purple #BFA2FC)
-    else if (body.className === "" || body.classList.contains("purple-theme")) {
-      this.bgColor = 0xf5f3ff;
-      this.cellBg = 0xede9fe;
-      this.cellText = "#1f2937";
-      this.foundColor = 0xa78bfa;
-      // NYT Special initial selector pastel green
-      this.selectionColor = 0xA6F7D7;
-      this.lineColor = 0xc4b5fd;
-      this.hintColor = 0xe74c3c;
+    // Default / Galaxy Theme (Pastel)
+    else {
+      this.bgColor = 0xffffff; // Transparent via CSS, this is for canvas bg
+      this.cellBg = 0xffffff;   // White glass tile
+      this.cellText = "#4a0e4e";
+      this.foundColor = 0xffc6ff; // Pastel Pink/Purple
+      this.selectionColor = 0xbdb2ff; // Pastel Violet
+      this.lineColor = 0xa0c4ff;
+      this.hintColor = 0xfdffb6;
     }
 
-    this.cameras.main.setBackgroundColor(this.bgColor);
+    // Set canvas background to transparent to let CSS background show through
+    this.cameras.main.setBackgroundColor('rgba(0,0,0,0)');
 
     // Update cell blocks and texts
     for (let r = 0; r < 8; r++) {
@@ -318,27 +292,21 @@ class Game extends Phaser.Scene {
         const isSelected = this.selectedCells.some(
           (cell) => cell.row === r && cell.col === c
         );
-        
+
         if (isFound) {
-          // Recolor found cells to match current theme's foundColor so they adapt when theme changes
-          this.cellBlocks[r][c].setFillStyle(this.foundColor, 1.0);
-          this.cellShadows[r][c].setFillStyle(0x000000, 0.3);
-          // Keep the internal cell color matrix in sync so persisted data reflects current theme
-          if (this.cellColors && this.cellColors[r]) {
-            this.cellColors[r][c] = this.foundColor;
-          }
+          this.cellBlocks[r][c].setTint(this.foundColor);
+          this.cellShadows[r][c].setTint(0x000000);
+          this.cellShadows[r][c].setAlpha(0.1);
         } else if (isSelected) {
-          this.cellBlocks[r][c].setFillStyle(this.selectionColor, 1.0);
-          this.cellShadows[r][c].setFillStyle(0x000000, 0.2);
+          this.cellBlocks[r][c].setTint(this.selectionColor);
+          this.cellShadows[r][c].setTint(0x000000);
+          this.cellShadows[r][c].setAlpha(0.15);
         } else {
-          this.cellBlocks[r][c].setFillStyle(this.cellBg, 1.0);
-          this.cellShadows[r][c].setFillStyle(0x000000, 0.15);
+          this.cellBlocks[r][c].setTint(this.cellBg);
+          this.cellShadows[r][c].setTint(0x000000);
+          this.cellShadows[r][c].setAlpha(0.05);
         }
-        this.cellBlocks[r][c].setAlpha(1);
-        this.cellShadows[r][c].setAlpha(1);
-        if (this.cellHighlights && this.cellHighlights[r][c]) {
-          this.cellHighlights[r][c].setAlpha(isFound ? 0 : 0.6);
-        }
+        this.cellBlocks[r][c].setAlpha(0.85); // Glassy opacity
         this.cellTexts[r][c].setColor(this.cellText);
       }
     }
@@ -361,7 +329,7 @@ class Game extends Phaser.Scene {
 
   create() {
     document.getElementById("loader").innerHTML = "";
-    
+
     // Timer will start on first user interaction (don't auto-start)
 
     // Grid settings
@@ -387,7 +355,7 @@ class Game extends Phaser.Scene {
     this.lineGraphics = this.add.graphics();
     this.foundLineGraphics = this.add.graphics();
     this.hintLineGraphics = this.add.graphics();
-    
+
     // Store grid settings for later use
     this.cellGap = cellGap;
     this.cellSize = cellSize;
@@ -405,70 +373,41 @@ class Game extends Phaser.Scene {
     // Create dimensional tile graphics: shadow, block, top highlight, and text
     this.cellShadows = [];
     this.cellBlocks = [];
-    this.cellHighlights = [];
     this.cellTexts = [];
-    
+    // Generate Rounded Rectangle Texture
+    const gr = this.make.graphics();
+    gr.fillStyle(0xffffff, 1);
+    const radius = cellSize * 0.3; // Responsive radius
+    gr.fillRoundedRect(0, 0, cellSize, cellSize, radius);
+    gr.generateTexture('cell-bg', cellSize, cellSize);
+    gr.destroy();
+
     for (let r = 0; r < rows; r++) {
       this.cellShadows[r] = [];
       this.cellBlocks[r] = [];
-      this.cellHighlights[r] = [];
       this.cellTexts[r] = [];
-      
+
       for (let c = 0; c < cols; c++) {
         const x = edgePadding + c * (cellSize + cellGap);
         const y = edgePadding + r * (cellSize + cellGap);
-        const blockWidth = cellSize * 0.88;
-        const blockHeight = cellSize * 0.92;
-        const offsetX = (cellSize - blockWidth) / 2;
-        const offsetY = (cellSize - blockHeight) / 2;
-        const centerX = x + offsetX + blockWidth / 2;
-        const centerY = y + offsetY + blockHeight / 2;
-        const shadowOffset = 4;
+        const centerX = x + cellSize / 2;
+        const centerY = y + cellSize / 2;
 
-        // Strong shadow for clearly dimensional 3D tile
-        const shadow = this.add.rectangle(
-          centerX + shadowOffset,
-          centerY + shadowOffset,
-          blockWidth,
-          blockHeight,
-          0x000000,
-          0.38
-        );
-        shadow.setStrokeStyle(0, 0x000000);
+        // Soft Shadow (Image)
+        const shadow = this.add.image(centerX, centerY + 2, 'cell-bg');
+        shadow.setTint(0x000000);
+        shadow.setAlpha(0.1);
         this.cellShadows[r][c] = shadow;
 
-        // Main tile with visible edge (dimensional block)
-        const block = this.add.rectangle(
-          centerX,
-          centerY,
-          blockWidth,
-          blockHeight,
-          0xe8ecf0,
-          1.0
-        );
-        block.setStrokeStyle(3, 0xb0b5bc, 1);
+        // Main Block (Image)
+        const block = this.add.image(centerX, centerY, 'cell-bg');
+        block.setTint(0xffffff);
         this.cellBlocks[r][c] = block;
 
-        // Top highlight strip for obvious bevel / letter-tile look
-        const highlightHeight = Math.max(3, Math.floor(blockHeight * 0.16));
-        const highlight = this.add.rectangle(
-          centerX,
-          centerY - blockHeight / 2 + highlightHeight / 2,
-          blockWidth - 2,
-          highlightHeight,
-          0xffffff,
-          0.65
-        );
-        highlight.setDepth(1);
-        this.cellHighlights[r][c] = highlight;
-
-        shadow.setAlpha(0);
-        block.setAlpha(0);
-        highlight.setAlpha(0);
-
+        // Selection circle (initially hidden)
         const circle = this.add.circle(
-          x + cellSize / 2,
-          y + cellSize / 2,
+          centerX,
+          centerY,
           cellSize * 0.42,
           0x4a90e2,
           0
@@ -478,17 +417,17 @@ class Game extends Phaser.Scene {
         this.selectionCircles[r] ??= [];
         this.selectionCircles[r][c] = circle;
 
-        // Letter text: NO text shadow for better readability - clean and crisp
+        // Letter text
         const text = this.add
           .text(
-            x + cellSize / 2,
-            y + cellSize / 2,
+            centerX,
+            centerY,
             this.grid[r][c],
             {
-              fontSize: `${Math.floor(cellDimention * 0.58)}px`,
-              color: "#1f2937",
-              fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
-              fontStyle: "bold",
+              fontSize: `${Math.floor(cellSize * 0.5)}px`,
+              color: "#4a0e4e",
+              fontFamily: "'Nunito', sans-serif",
+              fontStyle: "800",
             }
           )
           .setOrigin(0.5)
@@ -499,13 +438,13 @@ class Game extends Phaser.Scene {
 
     // Enhanced touch/click interaction with larger hit area for mobile
     const touchRadius = cellDimention * 0.5; // 30% larger hit area for better mobile UX
-    
+
     this.input.on("pointerdown", (pointer) => {
       if (isPaused) return;
 
       // Start timer on first user interaction
       startTimer();
-      
+
       for (let r = 0; r < rows; r++) {
         for (let c = 0; c < cols; c++) {
           const centerX = edgePadding + c * (cellSize + cellGap) + cellSize / 2;
@@ -516,18 +455,18 @@ class Game extends Phaser.Scene {
             centerX,
             centerY
           );
-          
+
           if (distance <= touchRadius) {
             const isFound = this.foundCells.some(
               (cell) => cell.row === r && cell.col === c
             );
-            
+
             if (!isFound) {
               // Check if this is a click (not drag start)
               const alreadySelected = this.selectedCells.some(
                 (cell) => cell.row === r && cell.col === c
               );
-              
+
               if (this.selectedCells.length > 0 && !this.isSelecting) {
                 // Click mode: add to or start new selection
                 if (!alreadySelected) {
@@ -535,7 +474,7 @@ class Game extends Phaser.Scene {
                   const lastCell = this.selectedCells[this.selectedCells.length - 1];
                   const dr = Math.abs(r - lastCell.row);
                   const dc = Math.abs(c - lastCell.col);
-                  
+
                   if ((dr === 0 && dc === 1) || (dr === 1 && dc === 0) || (dr === 1 && dc === 1)) {
                     // Adjacent: add to current selection
                     this.selectedCells.push({ row: r, col: c });
@@ -568,7 +507,7 @@ class Game extends Phaser.Scene {
       if (isPaused) return;
 
       if (!this.isSelecting) return;
-      
+
       for (let r = 0; r < rows; r++) {
         for (let c = 0; c < cols; c++) {
           const centerX = edgePadding + c * (cellSize + cellGap) + cellSize / 2;
@@ -579,7 +518,7 @@ class Game extends Phaser.Scene {
             centerX,
             centerY
           );
-          
+
           if (distance <= touchRadius) {
             const alreadySelected = this.selectedCells.some(
               (cell) => cell.row === r && cell.col === c
@@ -587,7 +526,7 @@ class Game extends Phaser.Scene {
             const isFound = this.foundCells.some(
               (cell) => cell.row === r && cell.col === c
             );
-            
+
             const lastIndex = this.selectedCells.length - 1;
             const lastCell = this.selectedCells[lastIndex];
             const prevCell = this.selectedCells[lastIndex - 1];
@@ -671,12 +610,12 @@ class Game extends Phaser.Scene {
     const isNonThemeWord = nonThemeWords.includes(word);
     const nonThemeAlreadyFound = nonThemeWordsFound.includes(word);
 
-    if(alreadyFound){
+    if (alreadyFound) {
       showSelectedTextLater = "Word already found!";
     }
 
-    if(isNonThemeWord){
-      if(!nonThemeAlreadyFound) {
+    if (isNonThemeWord) {
+      if (!nonThemeAlreadyFound) {
         hintTimes += 1;
         document.getElementById("hint-button").innerHTML = `Get a hint (${hintTimes})`;
         showSelectedTextLater = '👍 Bonus word found! Hint +1';
@@ -688,7 +627,7 @@ class Game extends Phaser.Scene {
       } else {
         showSelectedTextLater = 'Word already found!';
       }
-    }    
+    }
 
     // ✅ VALID WORD (theme word OR spangram)
     if (word.length >= 4 && (isThemeWord || isSpangram) && !alreadyFound) {
@@ -857,19 +796,19 @@ class Game extends Phaser.Scene {
     if (element1) {
       element1.textContent = `Found ${nonThemeWordsFound.length} of ${nonthemewordCount} bonus words`;
       element1.style.paddingTop = "4px";
-    }    
-    
+    }
+
     // Check if puzzle is complete
     if (foundCount === totalCount && foundCount > 0) {
       this.onPuzzleComplete();
     }
   }
-  
+
   onPuzzleComplete() {
     // Stop timer and calculate final time
     stopTimer();
     const completionTime = elapsedSeconds;
-    
+
     // Delay showing modal slightly for better UX
     setTimeout(() => {
       if (typeof window.showCompletionModal === 'function') {
@@ -988,7 +927,7 @@ class Game extends Phaser.Scene {
           .fill()
           .map(() => Array(6).fill(foundedColors));
       this.foundCells = parsed.foundCells || [];
-      
+
       // Restore cell colors and draw lines
       for (let r = 0; r < 8; r++) {
         for (let c = 0; c < 6; c++) {
@@ -1019,7 +958,7 @@ class Game extends Phaser.Scene {
     isPaused = false;
     this.input.enabled = true;
     document.getElementById("pause-btn").textContent = `Pause (${pauses})`;
-    
+
     // Update grid with new puzzle letters
     for (let r = 0; r < 8; r++) {
       for (let c = 0; c < 6; c++) {
@@ -1030,11 +969,11 @@ class Game extends Phaser.Scene {
         this.cellTexts[r][c].setColor("#2c3e50");
       }
     }
-    
+
     this.lineGraphics.clear();
     this.foundLineGraphics.clear();
     this.hintLineGraphics.clear();
-    
+
     // Clear hint
     document.getElementById("hint-display").textContent = "";
     this.currentHint = null;
@@ -1045,8 +984,8 @@ class Game extends Phaser.Scene {
 
     hintsUsed = 0;
     hintTimes = 2;
-    document.getElementById("hint-button").innerHTML = `Get a hint (${hintTimes})`; 
-    
+    document.getElementById("hint-button").innerHTML = `Get a hint (${hintTimes})`;
+
     // Clear ALL selection circles
     for (let r = 0; r < 8; r++) {
       for (let c = 0; c < 6; c++) {
@@ -1055,13 +994,13 @@ class Game extends Phaser.Scene {
           circle.setAlpha(0);
         }
       }
-    }    
-    
+    }
+
     this.updateFoundWordsText(words);
     this.updateColors();
   }
 
-  update() {}
+  update() { }
 }
 
 document.getElementById("theme-text").textContent = theme;
@@ -1138,7 +1077,7 @@ function initializeGame() {
   const edgePadding = 8; // Padding around edges for consistent spacing
   const cols = 6;
   const rows = 8;
-  
+
   game = new Phaser.Game({
     parent: "game",
     type: Phaser.AUTO,
